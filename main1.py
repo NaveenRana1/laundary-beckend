@@ -33,11 +33,11 @@ def create_user(db: Session, user: schema.UserCreate):
 
 @app.get("/")
 def home():
-    return{"message":"beckend is running"}
+    return{"message":"beakend is running"}
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://laundary-ui-yeyg.vercel.app","http://localhost:5173"],
+    allow_origins=["https://laundary-ui-yeyg.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
