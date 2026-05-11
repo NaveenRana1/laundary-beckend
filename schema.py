@@ -1,7 +1,7 @@
 from pydantic import BaseModel, EmailStr, field_validator
 import re
-
-
+from datetime import date
+from typing import Optional
 class UserCreate(BaseModel):
     """Used by POST /register — name + email + password"""
     name: str
@@ -37,7 +37,14 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
-
+class BookingCreate(BaseModel):
+    name: str
+    phone: str
+    address: str
+    service: str
+    date: date
+    notes: Optional[str] = None
+    quantity: int
 class UserOut(BaseModel):
     id: int
     name: str

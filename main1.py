@@ -1,33 +1,20 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
-
+import routes
+from routes import get_db
 from database import Base, engine, SessionalLocal
 import model, schema
 from model import Base
 from auth import verify_password, hash_password, create_token
 
+
 # Create tables on startup
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+app.include_router(routes.router)
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["https://laundary-ui-yeyg.vercel.app","http://localhost:5173"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-
-def get_db():
-    db = SessionalLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-# ── helpers ──────────────────────────────────────────────────────────────────
 
 def get_user_by_email(db: Session, email: str):
     return db.query(model.User).filter(model.User.email == email).first()
@@ -47,6 +34,14 @@ def create_user(db: Session, user: schema.UserCreate):
 @app.get("/")
 def home():
     return{"message":"beckend is running"}
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://laundary-ui-yeyg.vercel.app","http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.post("/register")
 def register(user: schema.UserCreate, db: Session = Depends(get_db)):
