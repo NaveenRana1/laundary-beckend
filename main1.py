@@ -1,21 +1,39 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
+
 import routes
+import model
+import schema
+
+from database import Base, engine
 from routes import get_db
-from database import Base, engine, SessionalLocal
-import model, schema
-from model import Base
 from auth import verify_password, hash_password, create_token
 
-
-# Create tables on startup
+# Create tables
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+# ✅ CORS must be FIRST
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://laundary-ui-yeyg.vercel.app",
+        "http://localhost:5173"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Routes
 app.include_router(routes.router)
 
 
+# ------------------------
+# Helper functions
+# ------------------------
 def get_user_by_email(db: Session, email: str):
     return db.query(model.User).filter(model.User.email == email).first()
 
@@ -31,17 +49,14 @@ def create_user(db: Session, user: schema.UserCreate):
     db.refresh(new_user)
     return new_user
 
+
+# ------------------------
+# API endpoints
+# ------------------------
 @app.get("/")
 def home():
-    return{"message":"beakend is running"}
+    return {"message": "backend is running"}
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["https://laundary-ui-yeyg.vercel.app/"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 @app.post("/register")
 def register(user: schema.UserCreate, db: Session = Depends(get_db)):
