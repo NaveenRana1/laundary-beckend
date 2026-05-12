@@ -1,20 +1,25 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
-
+from database import SessionalLocal
+import crud
 import routes
 import model
 import schema
 
 from database import Base, engine
-from routes import get_db
 from auth import verify_password, hash_password, create_token
 
 # Create tables
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
-
+def get_db():
+    db = SessionalLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 # ✅ CORS must be FIRST
 app.add_middleware(
     CORSMiddleware,
@@ -24,8 +29,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Routes
-app.include_router(routes.router)
 
 
 # ------------------------
@@ -80,3 +83,17 @@ def login(user: schema.UserLogin, db: Session = Depends(get_db)):
         "access_token": token,
         "token_type": "bearer"
     }
+
+@app.post("/bookings")
+def create_booking(
+    booking: schema.BookingCreate,
+    db: Session = Depends(get_db)
+):
+    return crud.create_booking(db, booking)
+
+
+@app.get("/bookings")
+def get_all_bookings(
+    db: Session = Depends(get_db)
+):
+    return crud.get_bookings(db)
