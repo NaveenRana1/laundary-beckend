@@ -23,10 +23,11 @@ def get_db():
 # ✅ CORS must be FIRST
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
+    allow_origins=["https://laundary-beckend.onrender.com"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+
 )
 
 
@@ -93,7 +94,7 @@ def create_booking(
 
 
 @app.get("/bookings")
-def get_all_bookings(
+def get_bookings(
     db: Session = Depends(get_db)
 ):
     return crud.get_bookings(db)
