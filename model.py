@@ -14,7 +14,7 @@ class User(Base):
 
 
 class Booking(Base):
-    __tablename__ = "bookings"
+    __tablename__ = "booking"
 
     id         = Column(Integer, primary_key=True, index=True)
     name       = Column(String, nullable=False)
@@ -25,3 +25,4 @@ class Booking(Base):
     date       = Column(String, default="")
     notes      = Column(String, default="")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    quantity=Column(Integer, default=0)
